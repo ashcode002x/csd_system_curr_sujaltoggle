@@ -76,7 +76,8 @@ body {
   margin: 0;
   padding: 0;
   /* background: url('./images/bg_canteen.png') no-repeat center center fixed; */
-  background:#f0f2f5;
+  /* background:#f0f2f5; */
+  background:rgb(243,218,206);
   background-size: cover;
   display: flex;
   flex-direction: column;
@@ -94,7 +95,8 @@ main {
   margin: auto;
   margin-top:100px;
   height: 60%;
-  background-color: rgba(255, 150, 150, 0.1); /* Add a semi-transparent background */
+  background-color: rgba(25, 150, 150, 0.1); /* Add a semi-transparent background */
+  box-shadow: 0 0 10px rgba(10, 10, 10, 0.5);
   padding: 20px;
   border-radius: 15px; /* Rounded corners for the container */
   box-shadow: 0 0 20px rgba(10, 10, 10, 0.2);
