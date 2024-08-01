@@ -149,6 +149,7 @@ if (isset($_POST['Add_To_Cart'])) {
             /* display: flex;  showimg orderlist on right side by gsg */
 
         }
+
         /*  Reducing the no of item in single row
         .main-content {
             flex: ;
@@ -163,11 +164,11 @@ if (isset($_POST['Add_To_Cart'])) {
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-height: 400px; /* Fixed height for scrolling */
-            /* overflow-y: auto; /* Enable vertical scrolling */
-        
+        /* overflow-y: auto; /* Enable vertical scrolling */
 
-        
-            /* .order-list {
+
+
+        /* .order-list {
                 flex: 1;
                 background-color: #ffffff;
                 padding: 10px;
@@ -186,7 +187,7 @@ if (isset($_POST['Add_To_Cart'])) {
         .order-list.visible {
             right: 0;
         } */
-             .order-list {
+        .order-list {
             flex: 1;
             background-color: #ffffff;
             padding: 10px;
@@ -200,11 +201,11 @@ if (isset($_POST['Add_To_Cart'])) {
             right: -100%;
             height: 100%;
             transition: right 0.5s ease-in-out;
-           }
- 
-            .order-list.visible {
+        }
+
+        .order-list.visible {
             right: 0;
-           }
+        }
 
 
         .header-actions {
@@ -267,7 +268,8 @@ if (isset($_POST['Add_To_Cart'])) {
 
         .card img {
             width: 100px;
-            height: 100px; /* Reduced height of the image */
+            height: 100px;
+            /* Reduced height of the image */
             object-fit: cover;
             margin-top: 20px;
             margin: auto;
@@ -310,9 +312,11 @@ if (isset($_POST['Add_To_Cart'])) {
 
         .card-footer .btn {
             transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
-            padding: 0.375rem 0.75rem; /* Reduced padding for the button */
+            padding: 0.375rem 0.75rem;
+            /* Reduced padding for the button */
             font-size: 0.8em;
-            margin-left: 30px; /* Reduced font size for the button */
+            margin-left: 30px;
+            /* Reduced font size for the button */
         }
 
         .card-footer .btn:hover {
@@ -380,6 +384,7 @@ if (isset($_POST['Add_To_Cart'])) {
             background-color: #218838;
             border-color: #1e7e34;
         }
+
         .order-list h4 {
             font-size: 1.2em;
             margin-bottom: 10px;
@@ -407,8 +412,7 @@ if (isset($_POST['Add_To_Cart'])) {
         }
 
 
-        .temp1
-        {
+        .temp1 {
             margin-left: 645px;
         }
     </style>
@@ -443,11 +447,9 @@ if (isset($_POST['Add_To_Cart'])) {
                     <button id="orders-btn" class="btn btn-orders" onclick="window.location.href='my_orders.php';">
                         <i class="fa-solid fa-box"></i> My Orders
                     </button>
-                    <button id="add-btn" class="btn btn-primary" onclick="window.location.href='cartpage.php';"><i
-                            class="fa-solid fa-cart-plus"></i> My Cart </button>
+                    <button id="add-btn" class="btn btn-primary" onclick="window.location.href='cartpage.php';"><i class="fa-solid fa-cart-plus"></i> My Cart </button>
                     <button id="print-btn" class="btn btn-secondary"><i class="fas fa-print"></i> Print</button>
-                    <button id="logout-btn" class="btn btn-danger" onclick="window.location.href='logout.php';"><i
-                            class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button id="logout-btn" class="btn btn-danger" onclick="window.location.href='logout.php';"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
             </div>
 
@@ -466,103 +468,103 @@ if (isset($_POST['Add_To_Cart'])) {
                     <option value="C6" <?php if ($category_filter == "C6") echo 'selected'; ?>>C6</option>
                 </select>
 
-
             </form>
 
 
 
-        <div class="card-grid">
-            <?php
-            // Fetch items with pagination and search
-            $sql = "SELECT * FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%' OR Unit LIKE '%$search%' OR Remarks LIKE '%$search%'";
+            <div class="card-grid">
+                <?php
+                // Fetch items with pagination and search
+                $sql = "SELECT * FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%' OR Unit LIKE '%$search%' OR Remarks LIKE '%$search%'";
 
-            if (!empty($category_filter) && $category_filter != "All Categories") {
-                $sql = "SELECT * FROM items WHERE category = '$category_filter'";
-            }
-
-
-            $sql .= " LIMIT $start_limit, $results_per_page";
+                if (!empty($_REQUEST['category_filter']) && $_REQUEST['category_filter'] != "All Categories") {
+                    $category_filter = $_REQUEST['category_filter'];
+                    $sql = "SELECT * FROM items WHERE category = '$category_filter'";
+                }
 
 
-            
-            $result = mysqli_query($conn, $sql);
+                $sql .= " LIMIT $start_limit, $results_per_page";
 
-            if ($result && mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    ?>
-                    <div class="card">
-                        <img src="<?php echo 'items_image/' . $row['item_image']; ?>" alt="<?php echo $row['name']; ?>">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo $row['name']; ?></h5>
-                            <div class="card-text">
-                                <span><strong>ID:</strong> <?php echo $row['itemId']; ?></span>
-                                <span style="flex-grow: 1;"></span> <!-- Spacer -->
-                                <span><strong>Category:</strong> <?php echo $row['category']; ?></span>
-                            </div>
-                            <div class="card-text">
-                                <span><strong>Description:</strong> <?php echo $row['description']; ?></span>
-                            </div>
-                            <div class="card-text">
-                                <span><strong>Price:</strong> Rs <?php echo number_format($row['price'], 2); ?></span>
-                                <span style="flex-grow: 1;"></span> <!-- Spacer -->
-                                <span><strong>Stock:</strong> <?php echo $row['stock_quantity']; ?></span>
-                            </div>
-                            <div class="card-text">
-                                <span><strong>Remark:</strong> <?php echo $row['Remarks']; ?></span>
-                                <span style="flex-grow: 1;"></span> <!-- Spacer -->
-                                <span><strong>Unit:</strong> <?php echo $row['Unit']; ?></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <form action="" method="POST" class="d-flex align-items-center">
-                                <input type="hidden" name="itemId" value="<?php echo $row['itemId']; ?>">
-                                <input type="hidden" name="name" value="<?php echo $row['name']; ?>">
-                                <input type="hidden" name="category" value="<?php echo $row['category']; ?>">
-                                <input type="hidden" name="description" value="<?php echo $row['description']; ?>">
-                                <input type="hidden" name="price" value="<?php echo $row['price']; ?>">
-                                <input type="hidden" name="stock_quantity" value="<?php echo $row['stock_quantity']; ?>">
-                                <input type="hidden" name="remarks" value="<?php echo $row['Remarks']; ?>">
-                                <input type="hidden" name="unit" value="<?php echo $row['Unit']; ?>">
-                                <div class="select-quantity">
-                                    <input type="number" name="selected_quantity" min="1" step="<?php echo ($row['Unit'] == 'Packets') ? '1' : '1'; ?>"  max="<?php echo min($row['stock_quantity'] , $row['limitt']); ?>" value="0">
-                                    <button type="submit" name="Add_To_Order" class="btn btn-outline-primary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">Add To Order</button>
+
+
+                $result = mysqli_query($conn, $sql);
+
+                if ($result && mysqli_num_rows($result) > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                ?>
+                        <div class="card">
+                            <img src="<?php echo 'items_image/' . $row['item_image']; ?>" alt="<?php echo $row['name']; ?>">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo $row['name']; ?></h5>
+                                <div class="card-text">
+                                    <span><strong>ID:</strong> <?php echo $row['itemId']; ?></span>
+                                    <span style="flex-grow: 1;"></span> <!-- Spacer -->
+                                    <span><strong>Category:</strong> <?php echo $row['category']; ?></span>
                                 </div>
-                            </form>
+                                <div class="card-text">
+                                    <span><strong>Description:</strong> <?php echo $row['description']; ?></span>
+                                </div>
+                                <div class="card-text">
+                                    <span><strong>Price:</strong> Rs <?php echo number_format($row['price'], 2); ?></span>
+                                    <span style="flex-grow: 1;"></span> <!-- Spacer -->
+                                    <span><strong>Stock:</strong> <?php echo $row['stock_quantity']; ?></span>
+                                </div>
+                                <div class="card-text">
+                                    <span><strong>Remark:</strong> <?php echo $row['Remarks']; ?></span>
+                                    <span style="flex-grow: 1;"></span> <!-- Spacer -->
+                                    <span><strong>Unit:</strong> <?php echo $row['Unit']; ?></span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <form action="" method="POST" class="d-flex align-items-center">
+                                    <input type="hidden" name="itemId" value="<?php echo $row['itemId']; ?>">
+                                    <input type="hidden" name="name" value="<?php echo $row['name']; ?>">
+                                    <input type="hidden" name="category" value="<?php echo $row['category']; ?>">
+                                    <input type="hidden" name="description" value="<?php echo $row['description']; ?>">
+                                    <input type="hidden" name="price" value="<?php echo $row['price']; ?>">
+                                    <input type="hidden" name="stock_quantity" value="<?php echo $row['stock_quantity']; ?>">
+                                    <input type="hidden" name="remarks" value="<?php echo $row['Remarks']; ?>">
+                                    <input type="hidden" name="unit" value="<?php echo $row['Unit']; ?>">
+                                    <div class="select-quantity">
+                                        <input type="number" name="selected_quantity" min="1" step="<?php echo ($row['Unit'] == 'Packets') ? '1' : '1'; ?>" max="<?php echo min($row['stock_quantity'], $row['limitt']); ?>" value="0">
+                                        <button type="submit" name="Add_To_Order" class="btn btn-outline-primary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">Add To Order</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                    <?php
-                }
-
-                // Free result set
-                mysqli_free_result($result);
-
-                // Pagination links
-                $sql_pagination = "SELECT COUNT(*) AS total FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%'";
-
-                if (!empty($category_filter)) {
-                    $sql_pagination .= " AND category = '$category_filter'";
-                }
-
-
-                $result_pagination = mysqli_query($conn, $sql_pagination);
-                $row_pagination = mysqli_fetch_assoc($result_pagination);
-                $total_pages = ceil($row_pagination['total'] / $results_per_page);
-
-                // Display pagination controls if there's more than one page
-                if ($total_pages > 1) {
-                    echo '<div class="d-flex justify-content-center mt-4">';
-                    echo '<ul class="pagination">';
-                    for ($i = 1; $i <= $total_pages; $i++) {
-                        echo '<li class="page-item ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '&search=' . $search . '&category_filter=' . $category_filter .'">' . $i . '</a></li>';
+                <?php
                     }
-                    echo '</ul>';
-                    echo '</div>';
+
+                    // Free result set
+                    mysqli_free_result($result);
+
+                    // Pagination links
+                    $sql_pagination = "SELECT COUNT(*) AS total FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%'";
+
+                    if (!empty($category_filter)) {
+                        $sql_pagination .= " AND category = '$category_filter'";
+                    }
+
+
+                    $result_pagination = mysqli_query($conn, $sql_pagination);
+                    $row_pagination = mysqli_fetch_assoc($result_pagination);
+                    $total_pages = ceil($row_pagination['total'] / $results_per_page);
+
+                    // Display pagination controls if there's more than one page
+                    if ($total_pages > 1) {
+                        echo '<div class="d-flex justify-content-center mt-4">';
+                        echo '<ul class="pagination">';
+                        for ($i = 1; $i <= $total_pages; $i++) {
+                            echo '<li class="page-item ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '&search=' . $search . '&category_filter=' . $category_filter . '">' . $i . '</a></li>';
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo "<p>No items found.</p>";
                 }
-            } else {
-                echo "<p>No items found.</p>";
-            }
-            ?>
-        </div>
+                ?>
+            </div>
 
 
         </div>
@@ -578,13 +580,13 @@ if (isset($_POST['Add_To_Cart'])) {
                     $total_items += $item['selected_quantity'];
                     $total_price += $item_total_price;
             ?>
-            <div class="order-list-item">
-                <span><?php echo $item['name']; ?> (<?php echo $item['selected_quantity']; ?> x $<?php echo $item['price']; ?>) = $<?php echo $item_total_price; ?></span>
-                <form action="" method="POST">
-                    <input type="hidden" name="index" value="<?php echo $index; ?>">
-                    <button type="submit" name="Remove_From_Order">X</button>
-                </form>
-            </div>
+                    <div class="order-list-item">
+                        <span><?php echo $item['name']; ?> (<?php echo $item['selected_quantity']; ?> x $<?php echo $item['price']; ?>) = $<?php echo $item_total_price; ?></span>
+                        <form action="" method="POST">
+                            <input type="hidden" name="index" value="<?php echo $index; ?>">
+                            <button type="submit" name="Remove_From_Order">X</button>
+                        </form>
+                    </div>
             <?php
                 }
             } else {
@@ -600,21 +602,27 @@ if (isset($_POST['Add_To_Cart'])) {
             </div>
         </div>
     </div>
-
-    <!-- Optional JavaScript -->
     <script src="jquery-3.3.1.slim.min.js"></script>
+    <!-- Optional JavaScript  -->
     <script src="popper.min.js"></script>
     <script src="bootstrap.min1.js"></script>
     <script src="dataTables.min.js"></script>
 
     <script>
+        console.log('hello');
+        $(document).ready(function() {
+            $("#category-filter").change(function() {
+                $("#filter-form").submit();
+                console.log('category-filter changed');
+            });
+        });
         // Print button functionality
-        document.getElementById('print-btn').addEventListener('click', function () {
+        document.getElementById('print-btn').addEventListener('click', function() {
             window.print();
         });
 
         // Toggle Order List functionality
-        document.getElementById('toggle-order-list-btn').addEventListener('click', function () {
+        document.getElementById('toggle-order-list-btn').addEventListener('click', function() {
             const orderList = document.querySelector('.order-list');
             orderList.classList.toggle('visible');
         });
@@ -629,7 +637,7 @@ if (isset($_POST['Add_To_Cart'])) {
             }
         }
     </script>
+</body>
 
-</onload=>
 
 </html>
