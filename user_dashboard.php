@@ -526,12 +526,15 @@ if (isset($_POST['Add_To_Cart'])) {
                                     <input type="hidden" name="remarks" value="<?php echo $row['Remarks']; ?>">
                                     <input type="hidden" name="unit" value="<?php echo $row['Unit']; ?>">
                                     <div class="select-quantity">
-                                        <input type="number" name="selected_quantity" min="1" step="<?php echo ($row['Unit'] == 'Packets') ? '1' : '1'; ?>" max="<?php echo min($row['stock_quantity'], $row['limitt']); ?>" value="0">
-                                        <button type="submit" name="Add_To_Order" class="btn btn-outline-primary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">Add To Order</button>
+                                        <input type="number" class="integer-input" name="selected_quantity" min="1" step="<?php echo ($row['Unit'] == 'Packets') ? '1' : '1'; ?>" value="0" max="0">
+                                        <input type="text" class="limit" hidden name="" value="<?php echo $row['limitt']; ?>">
+                                        <input type="text" class="item-id" hidden name="" value="<?php echo $row['itemId']; ?>">
+                                        <button type="submit" name="Add_To_Order" class="btn btn-outline-primary add-btn" style="padding: 0.2rem 0.5rem; font-size: 0.8em;" data-limit="<?php echo $row['limitt']; ?>" data-item-id="<?php echo $row['itemId']; ?>" max="<?php echo $row['limitt']; ?>">Add To Order</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
+
                 <?php
                     }
 
@@ -572,10 +575,16 @@ if (isset($_POST['Add_To_Cart'])) {
         <div class="order-list">
             <h4>Order List</h4>
             <?php
+            $arr = array();
+
+
             $total_items = 0;
             $total_price = 0;
+
             if (isset($_SESSION['order_list']) && count($_SESSION['order_list']) > 0) {
                 foreach ($_SESSION['order_list'] as $index => $item) {
+
+
                     $item_total_price = $item['price'] * $item['selected_quantity'];
                     $total_items += $item['selected_quantity'];
                     $total_price += $item_total_price;
@@ -603,39 +612,92 @@ if (isset($_POST['Add_To_Cart'])) {
         </div>
     </div>
     <script src="jquery-3.3.1.slim.min.js"></script>
-    <!-- Optional JavaScript  -->
+    <!-- Optional JavaScript -->
     <script src="popper.min.js"></script>
     <script src="bootstrap.min1.js"></script>
     <script src="dataTables.min.js"></script>
 
     <script>
-        console.log('hello');
         $(document).ready(function() {
+            console.log('hello');
+            var $dataMap = new Map();
+            fetch('api.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+
+                    // Convert response data to a Map
+                    // var dataMap = new Map(Object.entries(data));
+                    var dataMap = new Map(Object.entries(data).map(([key, value]) => [parseInt(key), parseFloat(value)]));
+                    console.log(dataMap);
+
+                    // Function to set max value
+                    function setMaxValue(itemId, limit) {
+                        $('.card').each(function() {
+                            var $this = $(this);
+                            var $input = $this.find('.integer-input');
+                            var $dataLimit = $this.find('.limit').val();
+                            var $dataItemId = $this.find('.item-id').val();
+
+                            if ($dataItemId == itemId) {
+                                var maxValue = limit - (dataMap.has(itemId) ? dataMap.get(itemId) : 0);
+                                if(itemId == 100){
+                                    console.log(maxValue);
+                                    console.log(itemId)
+                                    console.log(dataMap.get(itemId));//Map { 100 → "4.00" } item id is 100
+                                    console.log(dataMap.has(itemId));
+                                    console.log(limit);
+                                }
+                                $input.attr('max', maxValue);
+                            }
+                        });
+                    }
+
+                    // Apply max value for each item in the DOM
+                    $('.add-btn').each(function() {
+                        var $button = $(this);
+                        var itemId = $button.data('item-id');
+                        var limit = parseFloat($button.data('limit'));
+
+                        setMaxValue(itemId, limit);
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+            // Print button functionality
+            document.getElementById('print-btn').addEventListener('click', function() {
+                window.print();
+            });
+
+            // Toggle Order List functionality
+            document.getElementById('toggle-order-list-btn').addEventListener('click', function() {
+                const orderList = document.querySelector('.order-list');
+                orderList.classList.toggle('visible');
+            });
+
+            function toggleOrderList() {
+                const orderList = document.querySelector('.order-list');
+                const hasItems = <?php echo isset($_SESSION['order_list']) && count($_SESSION['order_list']) > 0 ? 'true' : 'false'; ?>;
+                if (hasItems) {
+                    orderList.classList.add('visible');
+                } else {
+                    orderList.classList.remove('visible');
+                }
+            }
+
+            // Category filter change event
             $("#category-filter").change(function() {
                 $("#filter-form").submit();
                 console.log('category-filter changed');
             });
         });
-        // Print button functionality
-        document.getElementById('print-btn').addEventListener('click', function() {
-            window.print();
-        });
-
-        // Toggle Order List functionality
-        document.getElementById('toggle-order-list-btn').addEventListener('click', function() {
-            const orderList = document.querySelector('.order-list');
-            orderList.classList.toggle('visible');
-        });
-
-        function toggleOrderList() {
-            const orderList = document.querySelector('.order-list');
-            const hasItems = <?php echo isset($_SESSION['order_list']) && count($_SESSION['order_list']) > 0 ? 'true' : 'false'; ?>;
-            if (hasItems) {
-                orderList.classList.add('visible');
-            } else {
-                orderList.classList.remove('visible');
-            }
-        }
     </script>
 </body>
 

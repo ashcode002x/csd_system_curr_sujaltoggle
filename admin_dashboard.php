@@ -252,7 +252,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <td class='text-center'>" . $row['Remarks'] . "</td>
                             <td class='text-center'><img src='items_image/" . $row['item_image'] . "' alt='" . $row['name'] . "' width='50' height='50'></td>
                             <td class='text-center temp'>
-                                <button class='edit btn btn-sm btn-primary' data-itemid='" . $row['itemId'] . "' data-name='" . $row['name'] . "' data-category='" . $row['category'] . "' data-description='" . $row['description'] . "' data-price='" . $row['price'] . "' data-stock_quantity='" . $row['stock_quantity'] . "' data-item_image='" . $row['item_image']. "' data-remarks='" . $row['Remarks'] . "' data-unit='" . $row['unit'] . "' data-limit='" . $row['limitt'] . "'> Edit</button>
+                                <button class='edit btn btn-sm btn-primary' data-itemid='" . $row['itemId'] . "' data-name='" . $row['name'] . "' data-category='" . $row['category'] . "' data-description='" . $row['description'] . "' data-price='" . $row['price'] . "' data-stock_quantity='" . $row['stock_quantity'] . "' data-item_image='" . $row['item_image']. "' data-remarks='" . $row['Remarks'] . "' data-unit='" . $row['Unit'] . "' data-limit='" . $row['limitt'] . "'> Edit</button>
                                 <button class='delete btn btn-sm btn-danger' data-itemid='" . $row['itemId'] . "'> Delete</button>
                             </td>
                         </tr>";
