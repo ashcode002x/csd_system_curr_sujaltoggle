@@ -551,7 +551,7 @@ if (isset($_POST['Add_To_Cart'])) {
                 <span><?php echo $item['name']; ?> (<?php echo $item['selected_quantity']; ?> x $<?php echo $item['price']; ?>) = $<?php echo $item_total_price; ?></span>
                 <form action="" method="POST">
                     <input type="hidden" name="index" value="<?php echo $index; ?>">
-                    <button type="submit" name="Remove_From_Order">Remove</button>
+                    <button type="submit" name="Remove_From_Order">X</button>
                 </form>
             </div>
             <?php
