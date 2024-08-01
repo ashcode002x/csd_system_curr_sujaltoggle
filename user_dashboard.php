@@ -430,7 +430,7 @@ if (isset($_POST['Add_To_Cart'])) {
                         <i class="fa-solid fa-box"></i> My Orders
                     </button>
                     <button id="add-btn" class="btn btn-primary" onclick="window.location.href='cartpage.php';"><i
-                            class="fa-solid fa-cart-plus"></i> My Cart : <?php echo $count; ?> </button>
+                            class="fa-solid fa-cart-plus"></i> My Cart </button>
                     <button id="print-btn" class="btn btn-secondary"><i class="fas fa-print"></i> Print</button>
                     <button id="logout-btn" class="btn btn-danger" onclick="window.location.href='logout.php';"><i
                             class="fas fa-sign-out-alt"></i> Logout</button>

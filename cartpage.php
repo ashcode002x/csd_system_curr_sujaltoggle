@@ -273,7 +273,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-color: #1e7e34;
         }
 
-         .card-container {
+        .card-container {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
@@ -351,16 +351,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 flex: 1 1 100%; /* 1 card per row on extra small screens */
             }
         }
-        .table th, .table td {
-            vertical-align: middle;
-        }
     </style>
 </head>
 <body>
-  
-<!-- navbar -->
+
+    <!-- navbar -->
     <?php include 'navbar.php'; ?>
-    
+
     <div class="container">
         <div class="header-row">
             <h1>My Cart</h1>
@@ -370,14 +367,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
 
-        <div class="table-container">
+<div class="table-container">
     <table class="table table-bordered">
         <thead>
-        <form action="cartpage.php" method="POST">
-            <table class="table table-bordered table-hover mt-3">
-                <thead class="thead-light">
-                    <tr>
-                    <th scope="col">ID</th>
+            <tr>
+                <th scope="col">ID</th>
                 <th scope="col">Image</th>
                 <th scope="col">Name</th>
                 <th scope="col">Category</th>
@@ -388,75 +382,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <th scope="col">Total</th>
                 <th scope="col">Remarks</th>
                 <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-    <?php
-    $total = 0;
-    if (isset($_SESSION['cart'])) {
-        // Group items by itemId and sum their quantities
-        $grouped_cart = [];
-        foreach ($_SESSION['cart'] as $item) {
-            $itemId = $item['itemId'];
-            if (!isset($grouped_cart[$itemId])) {
-                $grouped_cart[$itemId] = $item;
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $total = 0;
+            if (isset($_SESSION['cart'])) {
+                foreach ($_SESSION['cart'] as $key => $value) {
+                    $query = "SELECT * FROM items WHERE itemId = " . $value['itemId'];
+                    $result = mysqli_query($conn, $query);
+
+                    if (!$result) {
+                        die("Error fetching item details: " . mysqli_error($conn));
+                    }
+
+                    if (mysqli_num_rows($result) > 0) {
+                        $row = mysqli_fetch_assoc($result);
+                        $stockQuantity = $row['stock_quantity'];
+                        $itemImage = !empty($row['item_image']) ? $row['item_image'] : 'default_image.jpg';
+                    } else {
+                        $stockQuantity = 0;
+                        $itemImage = 'default_image.jpg';
+                    }
+
+                    // Calculate total price
+                    $total += $value['price'] * $value['selected_quantity'];
+
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($value['itemId']) . "</td>";
+                    echo "<td><img src='items_image/" . htmlspecialchars($itemImage) . "' alt='" . htmlspecialchars($value['name']) . "' style='width: 50px; height: 50px;'></td>";
+                    echo "<td>" . htmlspecialchars($value['name']) . "</td>";
+                    echo "<td>" . htmlspecialchars($value['category']) . "</td>";
+                    echo "<td>" . htmlspecialchars($value['description']) . "</td>";
+                    echo "<td>" . number_format($value['price'], 2) . "</td>";
+                    echo "<td>" . $value['selected_quantity'] . "</td>";
+                    echo "<td>" . $value['unit'] . "</td>";
+                    echo "<td>" . $value['selected_quantity'] * number_format($value['price'], 2) . "</td>";
+                    echo "<td>" . htmlspecialchars($value['remarks']) . "</td>";
+                    echo "<td>
+                            <div class='d-flex justify-content-between'>
+                                <button class='btn btn-outline-primary edit-btn' data-itemid='" . $value['itemId'] . "' data-selectedquantity='" . $value['selected_quantity'] . "' data-stockquantity='" . $stockQuantity . "'>Edit</button>
+                                <form method='POST' class='mb-0'>
+                                    <input type='hidden' name='itemId' value='" . $value['itemId'] . "'>
+                                    <button type='submit' name='Remove_Item' class='btn btn-outline-danger btn-sm'>Remove</button>
+                                </form>
+                            </div>
+                          </td>";
+                    echo "</tr>";
+                }
             } else {
-                $grouped_cart[$itemId]['selected_quantity'] += $item['selected_quantity'];
+                echo "<tr><td colspan='10'>Your cart is empty</td></tr>";
             }
-        }
-
-        // Fetch item details in one query
-        $itemIds = array_keys($grouped_cart);
-        $query = "SELECT * FROM items WHERE itemId IN (" . implode(',', $itemIds) . ")";
-        $result = mysqli_query($conn, $query);
-
-        if (!$result) {
-            die("Error fetching item details: " . mysqli_error($conn));
-        }
-
-        $items = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $items[$row['itemId']] = $row;
-        }
-
-        foreach ($grouped_cart as $key => $value) {
-            $item = $items[$key];
-            $stockQuantity = $item['stock_quantity'];
-            $itemImage = !empty($item['item_image']) ? $item['item_image'] : 'default_image.jpg';
-
-            // Calculate total price
-            $total += $value['price'] * $value['selected_quantity'];
-
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($value['itemId']) . "</td>";
-            echo "<td><img src='items_image/" . htmlspecialchars($itemImage) . "' alt='" . htmlspecialchars($value['name']) . "' style='width: 50px; height: 50px;'></td>";
-            echo "<td>" . htmlspecialchars($value['name']) . "</td>";
-            echo "<td>" . htmlspecialchars($value['category']) . "</td>";
-            echo "<td>" . htmlspecialchars($value['description']) . "</td>";
-            echo "<td>" . number_format($value['price'], 2) . "</td>";
-            echo "<td>" . $value['selected_quantity'] . "</td>";
-            echo "<td>" . htmlspecialchars($value['unit']) . "</td>";
-            echo "<td>" . $value['selected_quantity'] * number_format($value['price'], 2) . "</td>";
-            echo "<td>" . htmlspecialchars($value['remarks']) . "</td>";
-            echo "<td>
-                    <div class='d-flex justify-content-between'>
-                        <button class='btn btn-outline-primary edit-btn' data-itemid='" . $value['itemId'] . "' data-selectedquantity='" . $value['selected_quantity'] . "' data-stockquantity='" . $stockQuantity . "'>Edit</button>
-                        <form method='POST' class='mb-0'>
-                            <input type='hidden' name='itemId' value='" . $value['itemId'] . "'>
-                            <button type='submit' name='Remove_Item' class='btn btn-outline-danger btn-sm'>Remove</button>
-                        </form>
-                    </div>
-                  </td>";
-            echo "</tr>";
-        }
-    } else {
-        echo "<tr><td colspan='10'>Your cart is empty</td></tr>";
-    }
-    ?>
-</tbody>
-
-            </table>
-           </div>
+            ?>
+        </tbody>
+    </table>
+</div>
 
 
         <div class="col-lg-3 col-md-6 ml-auto cart-summary">
@@ -522,6 +502,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             });
         });
     </script>
-
 </body>
 </html>
