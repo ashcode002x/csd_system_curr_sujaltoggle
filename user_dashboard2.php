@@ -23,18 +23,13 @@ if (!isset($_GET['page'])) {
 } else {
     $page = $_GET['page'];
 }
-
-
-
 // Calculate SQL LIMIT starting row number for the pagination formula
 $start_limit = ($page - 1) * $results_per_page;
-
 // Search functionality
 $search = "";
 if (isset($_GET['search'])) {
     $search = $_GET['search'];
 }
-
 
 // Filter functionality
 $category_filter = "";
@@ -87,6 +82,7 @@ if (isset($_POST['Remove_From_Order'])) {
     }
 }
 
+
 // Handle adding the order list to the cart
 if (isset($_POST['Add_To_Cart'])) {
     if (!isset($_SESSION['cart'])) {
@@ -94,36 +90,32 @@ if (isset($_POST['Add_To_Cart'])) {
     }
 
     foreach ($_SESSION['order_list'] as $item) {
-        $found = false; // Initialize found flag
+        $cart_item = [
+            'itemId' => $item['itemId'],
+            'name' => $item['name'],
+            'category' => $item['category'],
+            'description' => $item['description'],
+            'price' => $item['price'],
+            'stock_quantity' => $item['stock_quantity'],
+            'remarks' => $item['remarks'],
+            'unit' => $item['unit'],
+            'selected_quantity' => $item['selected_quantity']
+        ];
 
-        foreach ($_SESSION['cart'] as &$cart_item) { // Use reference to update quantity directly
-            if ($cart_item['itemId'] === $item['itemId']) {
-                // Update the quantity if the item is already in the cart
-                $cart_item['selected_quantity'] += $item['selected_quantity'];
-                if ($cart_item['selected_quantity'] > $cart_item['stock_quantity']) {
-                    $cart_item['selected_quantity'] = $cart_item['stock_quantity']; // Ensure quantity doesn't exceed stock
-                }
-                $found = true; // Set found flag to true
-                break;
-            }
-        }
-
-        if (!$found) {
-            // Item not found in the cart, add it as a new item
-            $_SESSION['cart'][] = $item;
-        }
+        $_SESSION['cart'][] = $cart_item;
     }
 
     // Clear the order list after adding to cart
     $_SESSION['order_list'] = [];
-
+    
     // Redirect to cart page or display a success message
     header("Location: cartpage.php");
     exit();
 }
 
-
 ?>
+
+<?php include 'category_filter.php'; ?>
 
 <!doctype html>
 <html lang="en">
@@ -149,43 +141,7 @@ if (isset($_POST['Add_To_Cart'])) {
             /* display: flex;  showimg orderlist on right side by gsg */
 
         }
-        /*  Reducing the no of item in single row
-        .main-content {
-            flex: ;
-            margin-right: 20px;
-        } */
-
-        /* .order-list {
-            flex: 1;
-            background-color: #ffffff;
-            padding: 10px;
-            margin-top:95px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-height: 400px; /* Fixed height for scrolling */
-            /* overflow-y: auto; /* Enable vertical scrolling */
         
-
-        
-            /* .order-list {
-                flex: 1;
-                background-color: #ffffff;
-                padding: 10px;
-                margin-top: 95px;
-                border-radius: 5px; 
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                max-height: 400px;
-                overflow-y: auto;
-                position: fixed;
-                top: 0;
-                right: -100%;
-                height: 100%;
-                transition: right 0.5s ease-in-out;
-            }
-
-        .order-list.visible {
-            right: 0;
-        } */
              .order-list {
             flex: 1;
             background-color: #ffffff;
@@ -451,120 +407,108 @@ if (isset($_POST['Add_To_Cart'])) {
                 </div>
             </div>
 
-            <form id="filter-form" class="form-inline mb-3" method="GET">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search" value="<?php echo htmlspecialchars($search); ?>">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-
-                <select id="category-filter" class="form-control temp1" name="category_filter">
-                    <option value="">Select Category</option>
-                    <!-- <option value="">All Categories</option> -->
-                    <option value="C1" <?php if ($category_filter == "C1") echo 'selected'; ?>>C1</option>
-                    <option value="C2" <?php if ($category_filter == "C2") echo 'selected'; ?>>C2</option>
-                    <option value="C3" <?php if ($category_filter == "C3") echo 'selected'; ?>>C3</option>
-                    <option value="C4" <?php if ($category_filter == "C4") echo 'selected'; ?>>C4</option>
-                    <option value="C5" <?php if ($category_filter == "C5") echo 'selected'; ?>>C5</option>
-                    <option value="C6" <?php if ($category_filter == "C6") echo 'selected'; ?>>C6</option>
-                </select>
-
-
-            </form>
-
+           <!-- Search and Filter form -->
+        <form id="filter-form" class="form-inline mb-3">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search" value="<?php echo htmlspecialchars($search); ?>">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <select id="category-filter" class="form-control temp1" name="category_filter">
+                <option value="">Select Category</option>
+                <option value="">All Categories</option>
+                <option value="C1" <?php if ($category_filter == "C1") echo 'selected'; ?>>C1</option>
+                <option value="C2" <?php if ($category_filter == "C2") echo 'selected'; ?>>C2</option>
+                <option value="C3" <?php if ($category_filter == "C3") echo 'selected'; ?>>C3</option>
+                <option value="C4" <?php if ($category_filter == "C4") echo 'selected'; ?>>C4</option>
+                <option value="C5" <?php if ($category_filter == "C5") echo 'selected'; ?>>C5</option>
+                <option value="C6" <?php if ($category_filter == "C6") echo 'selected'; ?>>C6</option>
+                <!-- Add more categories as needed -->
+            </select>
+        </form>
 
 
-        <div class="card-grid">
-            <?php
-            // Fetch items with pagination and search
-            $sql = "SELECT * FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%' OR Unit LIKE '%$search%' OR Remarks LIKE '%$search%'";
-
-            if (!empty($category_filter) && $category_filter != "All Categories") {
-                $sql = "SELECT * FROM items WHERE category = '$category_filter'";
-            }
-
-
-            $sql .= " LIMIT $start_limit, $results_per_page";
-
-
-            
-            $result = mysqli_query($conn, $sql);
-
-            if ($result && mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    ?>
-                    <div class="card">
-                        <img src="<?php echo 'items_image/' . $row['item_image']; ?>" alt="<?php echo $row['name']; ?>">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo $row['name']; ?></h5>
-                            <div class="card-text">
-                                <span><strong>ID:</strong> <?php echo $row['itemId']; ?></span>
-                                <span style="flex-grow: 1;"></span> <!-- Spacer -->
-                                <span><strong>Category:</strong> <?php echo $row['category']; ?></span>
-                            </div>
-                            <div class="card-text">
-                                <span><strong>Description:</strong> <?php echo $row['description']; ?></span>
-                            </div>
-                            <div class="card-text">
-                                <span><strong>Price:</strong> Rs <?php echo number_format($row['price'], 2); ?></span>
-                                <span style="flex-grow: 1;"></span> <!-- Spacer -->
-                                <span><strong>Stock:</strong> <?php echo $row['stock_quantity']; ?></span>
-                            </div>
-                            <div class="card-text">
-                                <span><strong>Remark:</strong> <?php echo $row['Remarks']; ?></span>
-                                <span style="flex-grow: 1;"></span> <!-- Spacer -->
-                                <span><strong>Unit:</strong> <?php echo $row['Unit']; ?></span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <form action="" method="POST" class="d-flex align-items-center">
-                                <input type="hidden" name="itemId" value="<?php echo $row['itemId']; ?>">
-                                <input type="hidden" name="name" value="<?php echo $row['name']; ?>">
-                                <input type="hidden" name="category" value="<?php echo $row['category']; ?>">
-                                <input type="hidden" name="description" value="<?php echo $row['description']; ?>">
-                                <input type="hidden" name="price" value="<?php echo $row['price']; ?>">
-                                <input type="hidden" name="stock_quantity" value="<?php echo $row['stock_quantity']; ?>">
-                                <input type="hidden" name="remarks" value="<?php echo $row['Remarks']; ?>">
-                                <input type="hidden" name="unit" value="<?php echo $row['Unit']; ?>">
-                                <div class="select-quantity">
-                                    <input type="number" name="selected_quantity" min="1" step="<?php echo ($row['Unit'] == 'Packets') ? '1' : '1'; ?>"  max="<?php echo min($row['stock_quantity'] , $row['limitt']); ?>" value="0">
-                                    <button type="submit" name="Add_To_Order" class="btn btn-outline-primary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">Add To Order</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <?php
-                }
-
-                // Free result set
-                mysqli_free_result($result);
-
-                // Pagination links
-                $sql_pagination = "SELECT COUNT(*) AS total FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%'";
-
+            <div class="card-grid">
+                <?php
+                // Fetch items with pagination and search
+                $sql = "SELECT * FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%' OR Unit LIKE '%$search%' OR Remarks LIKE '%$search%'";
                 if (!empty($category_filter)) {
-                    $sql_pagination .= " AND category = '$category_filter'";
+                    $sql .= " AND category = '$category_filter'";
                 }
+                $sql .= " LIMIT $start_limit, $results_per_page";
+                
+                $result = mysqli_query($conn, $sql);
 
-
-                $result_pagination = mysqli_query($conn, $sql_pagination);
-                $row_pagination = mysqli_fetch_assoc($result_pagination);
-                $total_pages = ceil($row_pagination['total'] / $results_per_page);
-
-                // Display pagination controls if there's more than one page
-                if ($total_pages > 1) {
-                    echo '<div class="d-flex justify-content-center mt-4">';
-                    echo '<ul class="pagination">';
-                    for ($i = 1; $i <= $total_pages; $i++) {
-                        echo '<li class="page-item ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '&search=' . $search . '&category_filter=' . $category_filter .'">' . $i . '</a></li>';
+                if ($result && mysqli_num_rows($result) > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        ?>
+                        <div class="card">
+                            <img src="<?php echo 'items_image/' . $row['item_image']; ?>" alt="<?php echo $row['name']; ?>">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo $row['name']; ?></h5>
+                                <div class="card-text">
+                                    <span><strong>ID:</strong> <?php echo $row['itemId']; ?></span>
+                                    <span style="flex-grow: 1;"></span> <!-- Spacer -->
+                                    <span><strong>Category:</strong> <?php echo $row['category']; ?></span>
+                                </div>
+                                <div class="card-text">
+                                    <span><strong>Description:</strong> <?php echo $row['description']; ?></span>
+                                </div>
+                                <div class="card-text">
+                                    <span><strong>Price:</strong> Rs <?php echo number_format($row['price'], 2); ?></span>
+                                    <span style="flex-grow: 1;"></span> <!-- Spacer -->
+                                    <span><strong>Stock:</strong> <?php echo $row['stock_quantity']; ?></span>
+                                </div>
+                                <div class="card-text">
+                                    <span><strong>Remark:</strong> <?php echo $row['Remarks']; ?></span>
+                                    <span style="flex-grow: 1;"></span> <!-- Spacer -->
+                                    <span><strong>Unit:</strong> <?php echo $row['Unit']; ?></span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <form action="" method="POST" class="d-flex align-items-center">
+                                    <input type="hidden" name="itemId" value="<?php echo $row['itemId']; ?>">
+                                    <input type="hidden" name="name" value="<?php echo $row['name']; ?>">
+                                    <input type="hidden" name="category" value="<?php echo $row['category']; ?>">
+                                    <input type="hidden" name="description" value="<?php echo $row['description']; ?>">
+                                    <input type="hidden" name="price" value="<?php echo $row['price']; ?>">
+                                    <input type="hidden" name="stock_quantity" value="<?php echo $row['stock_quantity']; ?>">
+                                    <input type="hidden" name="remarks" value="<?php echo $row['Remarks']; ?>">
+                                    <input type="hidden" name="unit" value="<?php echo $row['Unit']; ?>">
+                                    <div class="select-quantity">
+                                        <input type="number" name="selected_quantity" min="1" step="<?php echo ($row['Unit'] == 'Packets') ? '1' : '1'; ?>"  max="<?php echo min($row['stock_quantity'] , $row['limitt']); ?>" value="0">
+                                        <button type="submit" name="Add_To_Order" class="btn btn-outline-primary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">Add To Order</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <?php
                     }
-                    echo '</ul>';
-                    echo '</div>';
+
+                    // Free result set
+                    mysqli_free_result($result);
+
+                    // Pagination links
+                    $sql_pagination = "SELECT COUNT(*) AS total FROM items WHERE name LIKE '%$search%' OR itemId LIKE '%$search%' OR category LIKE '%$search%' OR description LIKE '%$search%' OR price LIKE '%$search%' OR stock_quantity LIKE '%$search%'";
+                    if (!empty($category_filter)) {
+                        $sql_pagination .= " AND category = '$category_filter'";
+                    }
+                    $result_pagination = mysqli_query($conn, $sql_pagination);
+                    $row_pagination = mysqli_fetch_assoc($result_pagination);
+                    $total_pages = ceil($row_pagination['total'] / $results_per_page);
+
+                    // Display pagination controls if there's more than one page
+                    if ($total_pages > 1) {
+                        echo '<div class="d-flex justify-content-center mt-4">';
+                        echo '<ul class="pagination">';
+                        for ($i = 1; $i <= $total_pages; $i++) {
+                            echo '<li class="page-item ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '&search=' . $search . '">' . $i . '</a></li>';
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo "<p>No items found.</p>";
                 }
-            } else {
-                echo "<p>No items found.</p>";
-            }
-            ?>
-        </div>
-
-
+                ?>
+            </div>
         </div>
 
         <div class="order-list">
@@ -617,6 +561,10 @@ if (isset($_POST['Add_To_Cart'])) {
         document.getElementById('toggle-order-list-btn').addEventListener('click', function () {
             const orderList = document.querySelector('.order-list');
             orderList.classList.toggle('visible');
+        });
+         // Automatically submit the form when the category is changed
+         document.getElementById('category-filter').addEventListener('change', function() {
+            document.getElementById('filter-form').submit();
         });
 
         function toggleOrderList() {
